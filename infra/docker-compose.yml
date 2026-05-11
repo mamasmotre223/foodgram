@@ -3,6 +3,7 @@
   static_data:
   media_data:
   frontend_build:
+  certbot_www:
 
 services:
   db:
@@ -36,12 +37,15 @@ services:
     image: nginx:1.25.4-alpine
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - frontend_build:/usr/share/nginx/html/
       - ../docs:/usr/share/nginx/html/api/docs/:ro
       - static_data:/static/
       - media_data:/media/
+      - certbot_www:/var/www/certbot/
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
       - frontend

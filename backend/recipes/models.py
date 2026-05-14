@@ -1,6 +1,6 @@
-﻿from django.core.validators import MinValueValidator
+﻿from core.models import AmountMixin, CreatedModel
+from django.core.validators import MinValueValidator
 from django.db import models
-from core.models import AmountMixin, CreatedModel
 from users.models import User
 
 

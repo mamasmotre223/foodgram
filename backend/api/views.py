@@ -293,4 +293,3 @@ class ShortLinkRedirectView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         get_object_or_404(Recipe, pk=recipe_id)
         return redirect(f"/recipes/{recipe_id}")
-

@@ -1,6 +1,5 @@
 ﻿from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-
 from users.models import Subscription, User
 
 
@@ -24,4 +23,3 @@ class SubscriptionAdmin(admin.ModelAdmin):
         "user__username",
         "author__username",
     )
-

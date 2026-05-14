@@ -14,7 +14,6 @@ from recipes.models import (
 )
 from users.models import Subscription, User
 
-
 PIXEL = (
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/"
     "x8AAusB9Y9Hn8QAAAAASUVORK5CYII="
@@ -140,4 +139,3 @@ class Command(BaseCommand):
             ShoppingCart.objects.get_or_create(user=users[2], recipe=shopping_recipe)
 
         self.stdout.write(self.style.SUCCESS("Demo data created."))
-

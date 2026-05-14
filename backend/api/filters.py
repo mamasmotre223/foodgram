@@ -1,6 +1,5 @@
 ﻿import django_filters
 from django.db.models import Q
-
 from recipes.models import Ingredient, Recipe, Tag
 
 
@@ -45,4 +44,3 @@ class RecipeFilter(django_filters.FilterSet):
             return queryset.none() if int(value) else queryset
         condition = Q(in_shopping_carts__user=user)
         return queryset.filter(condition) if int(value) else queryset.exclude(condition)
-

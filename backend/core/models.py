@@ -28,4 +28,3 @@ class AmountMixin(models.Model):
 
     class Meta:
         abstract = True
-

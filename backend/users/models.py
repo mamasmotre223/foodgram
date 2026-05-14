@@ -2,7 +2,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
 
-
 username_validator = RegexValidator(
     regex=r"^[\w.@+-]+\Z",
     message="Введите корректный username.",
@@ -63,4 +62,3 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.author}"
-

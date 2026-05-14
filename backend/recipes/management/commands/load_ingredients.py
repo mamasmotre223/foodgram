@@ -33,4 +33,3 @@ class Command(BaseCommand):
             )
         Ingredient.objects.bulk_create(objects, ignore_conflicts=True)
         self.stdout.write(self.style.SUCCESS(f"Loaded {len(objects)} ingredients"))
-

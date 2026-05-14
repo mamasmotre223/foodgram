@@ -5,7 +5,6 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Sum
 from rest_framework import serializers
-
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -289,4 +288,3 @@ class ShoppingListExportSerializer(serializers.Serializer):
             .annotate(total_amount=Sum("amount"))
             .order_by("ingredient__name")
         )
-

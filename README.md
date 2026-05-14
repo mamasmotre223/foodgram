@@ -11,7 +11,7 @@ Foodgram — это сервис для обмена рецептами. Пол�
 
 ## Демо-аккаунты
 
-- Администратор: `admin@foodgram.local` / `admin12345`
+- Администратор: `admin1@foodgram.local` / `admin123`
 - Пользователь 1: `chef1@foodgram.local` / `testpass123`
 - Пользователь 2: `chef2@foodgram.local` / `testpass123`
 

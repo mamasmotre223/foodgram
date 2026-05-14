@@ -3,7 +3,6 @@ from uuid import uuid4
 
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
-
 from recipes.models import (
     Favorite,
     Ingredient,

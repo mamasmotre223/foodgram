@@ -4,7 +4,6 @@ import uuid
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Sum
-from rest_framework import serializers
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -13,6 +12,7 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
+from rest_framework import serializers
 from users.models import Subscription, User
 
 

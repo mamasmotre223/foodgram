@@ -1,12 +1,4 @@
-﻿from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins, permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from api.filters import IngredientFilter, RecipeFilter
+﻿from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     AvatarSerializer,
@@ -20,7 +12,14 @@ from api.serializers import (
     UserCreateSerializer,
     UserSerializer,
 )
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from users.models import Subscription, User
 
 

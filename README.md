@@ -5,7 +5,6 @@ Foodgram — это сервис для обмена рецептами. Пол�
 ## Развёрнутый проект
 
 - Сайт: http://icantbreathe.myftp.biz/
-- Сервер IP: http://81.26.180.71/
 - Админ-панель: http://icantbreathe.myftp.biz/admin/
 - Документация API: http://icantbreathe.myftp.biz/api/docs/
 

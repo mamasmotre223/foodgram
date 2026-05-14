@@ -1,6 +1,5 @@
 ﻿from django.contrib import admin
 from django.db.models import Count
-
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -36,8 +35,10 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline,)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annotate(
-            _favorites_count=Count("favorited_by")
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(_favorites_count=Count("favorited_by"))
         )
 
     @admin.display(description="В избранном")

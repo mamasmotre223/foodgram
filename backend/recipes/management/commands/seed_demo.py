@@ -3,7 +3,6 @@ from uuid import uuid4
 
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
-
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -56,9 +55,13 @@ class Command(BaseCommand):
         users = []
         for data in users_data:
             email = data["email"]
-            user, created = User.objects.get_or_create(email=email, defaults=data)
+            user, created = User.objects.get_or_create(
+                email=email, defaults=data
+            )
             if created:
-                user.set_password("admin12345" if user.is_superuser else "testpass123")
+                user.set_password(
+                    "admin12345" if user.is_superuser else "testpass123"
+                )
                 user.save()
             users.append(user)
 
@@ -73,7 +76,9 @@ class Command(BaseCommand):
                 ("Мука", "г"),
             ]
             for name, unit in fallback:
-                Ingredient.objects.get_or_create(name=name, measurement_unit=unit)
+                Ingredient.objects.get_or_create(
+                    name=name, measurement_unit=unit
+                )
             ingredients = list(Ingredient.objects.all()[:6])
 
         recipes_data = [
@@ -134,8 +139,12 @@ class Command(BaseCommand):
         favorite_recipe = Recipe.objects.filter(author=users[2]).first()
         shopping_recipe = Recipe.objects.filter(author=users[1]).first()
         if favorite_recipe:
-            Favorite.objects.get_or_create(user=users[1], recipe=favorite_recipe)
+            Favorite.objects.get_or_create(
+                user=users[1], recipe=favorite_recipe
+            )
         if shopping_recipe:
-            ShoppingCart.objects.get_or_create(user=users[2], recipe=shopping_recipe)
+            ShoppingCart.objects.get_or_create(
+                user=users[2], recipe=shopping_recipe
+            )
 
         self.stdout.write(self.style.SUCCESS("Demo data created."))

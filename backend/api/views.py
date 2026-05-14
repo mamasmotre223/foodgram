@@ -1,12 +1,4 @@
-﻿from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins, permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from api.filters import IngredientFilter, RecipeFilter
+﻿from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     AvatarSerializer,
@@ -20,7 +12,14 @@ from api.serializers import (
     UserCreateSerializer,
     UserSerializer,
 )
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from users.models import Subscription, User
 
 
@@ -40,7 +39,13 @@ class UserViewSet(
         return UserSerializer
 
     def get_permissions(self):
-        auth_actions = {"me", "set_password", "avatar", "subscriptions", "subscribe"}
+        auth_actions = {
+            "me",
+            "set_password",
+            "avatar",
+            "subscriptions",
+            "subscribe",
+        }
         if self.action in auth_actions:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
@@ -134,7 +139,9 @@ class UserViewSet(
         permission_classes=(permissions.IsAuthenticated,),
     )
     def subscriptions(self, request):
-        queryset = User.objects.filter(subscribers__user=request.user).order_by("id")
+        queryset = User.objects.filter(
+            subscribers__user=request.user
+        ).order_by("id")
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -218,7 +225,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def _relation_action(self, request, pk, model):
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == "POST":
-            _, created = model.objects.get_or_create(user=request.user, recipe=recipe)
+            _, created = model.objects.get_or_create(
+                user=request.user, recipe=recipe
+            )
             if not created:
                 return Response(
                     {"errors": ["Рецепт уже добавлен."]},
@@ -229,7 +238,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 context=self.get_serializer_context(),
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        deleted, _ = model.objects.filter(user=request.user, recipe=recipe).delete()
+        deleted, _ = model.objects.filter(
+            user=request.user, recipe=recipe
+        ).delete()
         if not deleted:
             return Response(
                 {"errors": ["Рецепт не найден в списке."]},
@@ -273,13 +284,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             "\n".join(lines),
             content_type="text/plain; charset=utf-8",
         )
-        response["Content-Disposition"] = 'attachment; filename="shopping-list.txt"'
+        response["Content-Disposition"] = (
+            'attachment; filename="shopping-list.txt"'
+        )
         return response
 
     @action(detail=True, methods=("get",), url_path="get-link")
     def get_link(self, request, pk=None):
         recipe = self.get_object()
-        short_link = request.build_absolute_uri(f"/s/{format(recipe.id, 'x')}/")
+        short_link = request.build_absolute_uri(
+            f"/s/{format(recipe.id, 'x')}/"
+        )
         return Response({"short-link": short_link})
 
 

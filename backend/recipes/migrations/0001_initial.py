@@ -26,7 +26,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=128, verbose_name="Название")),
+                (
+                    "name",
+                    models.CharField(max_length=128, verbose_name="Название"),
+                ),
                 (
                     "measurement_unit",
                     models.CharField(
@@ -83,8 +86,14 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("created", models.DateTimeField(auto_now_add=True, db_index=True)),
-                ("name", models.CharField(max_length=256, verbose_name="Название")),
+                (
+                    "created",
+                    models.DateTimeField(auto_now_add=True, db_index=True),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=256, verbose_name="Название"),
+                ),
                 (
                     "image",
                     models.ImageField(
@@ -95,7 +104,9 @@ class Migration(migrations.Migration):
                 (
                     "cooking_time",
                     models.PositiveSmallIntegerField(
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[
+                            django.core.validators.MinValueValidator(1)
+                        ],
                         verbose_name="Время приготовления",
                     ),
                 ),
@@ -138,7 +149,9 @@ class Migration(migrations.Migration):
                 (
                     "amount",
                     models.PositiveSmallIntegerField(
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[
+                            django.core.validators.MinValueValidator(1)
+                        ],
                         verbose_name="Количество",
                     ),
                 ),

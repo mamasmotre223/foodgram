@@ -3,7 +3,9 @@ from django.db import models
 
 
 class NamedModel(models.Model):
-    name = models.CharField(max_length=256, unique=True, verbose_name="Название")
+    name = models.CharField(
+        max_length=256, unique=True, verbose_name="Название"
+    )
 
     class Meta:
         abstract = True

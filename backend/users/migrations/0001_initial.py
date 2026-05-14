@@ -27,7 +27,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "password",
+                    models.CharField(max_length=128, verbose_name="password"),
+                ),
                 (
                     "last_login",
                     models.DateTimeField(
@@ -200,7 +203,9 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="subscription",
             constraint=models.CheckConstraint(
-                condition=models.Q(("user", models.F("author")), _negated=True),
+                condition=models.Q(
+                    ("user", models.F("author")), _negated=True
+                ),
                 name="prevent_self_subscription",
             ),
         ),

@@ -57,9 +57,3 @@ DB_PORT=5432
 cd infra
 sudo docker compose up -d --build
 ```
-
-Проверьте контейнеры:
-
-```bash
-sudo docker compose ps
-```

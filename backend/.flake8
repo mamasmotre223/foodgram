@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 120
+exclude = migrations, venv, env, __pycache__, .git, data, static, media
+ignore = D100, D101, D102, D103, D104, D105, D106, W503, E203, I005

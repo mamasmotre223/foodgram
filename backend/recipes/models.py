@@ -52,7 +52,9 @@ class Recipe(CreatedModel):
         related_name="recipes",
         verbose_name="Ингредиенты",
     )
-    tags = models.ManyToManyField(Tag, related_name="recipes", verbose_name="Теги")
+    tags = models.ManyToManyField(
+        Tag, related_name="recipes", verbose_name="Теги"
+    )
     cooking_time = models.PositiveSmallIntegerField(
         "Время приготовления",
         validators=[MinValueValidator(1)],
@@ -85,7 +87,8 @@ class RecipeIngredient(AmountMixin):
         verbose_name_plural = "Ингредиенты в рецепте"
         constraints = [
             models.UniqueConstraint(
-                fields=("recipe", "ingredient"), name="unique_recipe_ingredient"
+                fields=("recipe", "ingredient"),
+                name="unique_recipe_ingredient",
             )
         ]
 
@@ -123,7 +126,9 @@ class Favorite(RecipeRelation):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=("user", "recipe"), name="unique_favorite")
+            models.UniqueConstraint(
+                fields=("user", "recipe"), name="unique_favorite"
+            )
         ]
         verbose_name = "Избранное"
         verbose_name_plural = "Избранное"

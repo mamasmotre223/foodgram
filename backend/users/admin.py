@@ -5,10 +5,19 @@ from users.models import Subscription, User
 
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
-    list_display = ("id", "email", "username", "first_name", "last_name", "is_staff")
+    list_display = (
+        "id",
+        "email",
+        "username",
+        "first_name",
+        "last_name",
+        "is_staff",
+    )
     search_fields = ("email", "username", "first_name", "last_name")
     ordering = ("id",)
-    fieldsets = DjangoUserAdmin.fieldsets + (("Профиль", {"fields": ("avatar",)}),)
+    fieldsets = DjangoUserAdmin.fieldsets + (
+        ("Профиль", {"fields": ("avatar",)}),
+    )
     add_fieldsets = DjangoUserAdmin.add_fieldsets + (
         ("Профиль", {"fields": ("first_name", "last_name", "avatar")}),
     )

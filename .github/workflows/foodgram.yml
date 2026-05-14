@@ -41,9 +41,13 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Run flake8 (PEP 8)
+
         run: |
           cd backend/
           python -m flake8 .
+
+        run: python -m flake8 backend/
+
 
       - name: Run Django tests
         env:

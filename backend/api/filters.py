@@ -10,8 +10,8 @@ class IngredientFilter(django_filters.FilterSet):
         model = Ingredient
         fields = ("name",)
 
-    def filter_name(self, queryset, name, value):
-        return queryset.filter(name__istartswith=value)
+    def filter_name(self, ingredients, name, value):
+        return ingredients.filter(name__istartswith=value)
 
 
 class RecipeFilter(django_filters.FilterSet):
@@ -31,24 +31,24 @@ class RecipeFilter(django_filters.FilterSet):
         model = Recipe
         fields = ("author", "tags")
 
-    def filter_is_favorited(self, queryset, name, value):
+    def filter_is_favorited(self, recipes, name, value):
         user = getattr(self.request, "user", None)
         if not user or not user.is_authenticated:
-            return queryset.none() if int(value) else queryset
+            return recipes.none() if int(value) else recipes
         condition = Q(favorited_by__user=user)
         return (
-            queryset.filter(condition)
+            recipes.filter(condition)
             if int(value)
-            else queryset.exclude(condition)
+            else recipes.exclude(condition)
         )
 
-    def filter_is_in_shopping_cart(self, queryset, name, value):
+    def filter_is_in_shopping_cart(self, recipes, name, value):
         user = getattr(self.request, "user", None)
         if not user or not user.is_authenticated:
-            return queryset.none() if int(value) else queryset
+            return recipes.none() if int(value) else recipes
         condition = Q(in_shopping_carts__user=user)
         return (
-            queryset.filter(condition)
+            recipes.filter(condition)
             if int(value)
-            else queryset.exclude(condition)
+            else recipes.exclude(condition)
         )

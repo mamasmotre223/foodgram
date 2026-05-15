@@ -1,58 +1,40 @@
 # Foodgram
 
-Foodgram — это сервис для обмена рецептами. Пользователи могут публиковать рецепты, добавлять рецепты в избранное, подписываться на авторов и скачивать список покупок с суммированными ингредиентами.
+Автор: Андрей Квичанский — [контакт](https://github.com/).
+
+Foodgram — сервис публикации рецептов, избранного, подписок и списка покупок.
 
 ## Развёрнутый проект
 
-- Сайт: http://icantbreathe.myftp.biz/
-- Админ-панель: http://icantbreathe.myftp.biz/admin/
-- Документация API: http://icantbreathe.myftp.biz/api/docs/
-
-## Демо-аккаунты
-
-- Администратор: `admin1@foodgram.local` / `admin123`
-- Пользователь 1: `chef1@foodgram.local` / `testpass123`
-- Пользователь 2: `chef2@foodgram.local` / `testpass123`
+- [Сайт](http://icantbreathe.myftp.biz/)
+- [Админ-панель](http://icantbreathe.myftp.biz/admin/)
+- [Документация API](http://icantbreathe.myftp.biz/api/docs/)
 
 ## Технологический стек
 
-- Python
-- Django
-- Django REST Framework
-- Djoser (токен-аутентификация)
-- PostgreSQL
-- Gunicorn
-- Nginx
-- Docker Compose
-- React SPA (фронтенд)
+Python, Django, DRF, Djoser, PostgreSQL, Gunicorn, Nginx, Docker Compose, React.
 
-## Структура проекта
-
-- `backend/` — Django REST API.
-- `frontend/` — одностраничное приложение на React.
-- `infra/` — конфигурация Docker Compose и Nginx.
-- `data/` — исходные данные ингредиентов.
-- `docs/` — OpenAPI-схема и страница Redoc.
-
-## Запуск локально
-
-Создайте файл `backend/.env`:
-
-```env
-DEBUG=True
-DJANGO_SECRET_KEY=change-me
-ALLOWED_HOSTS=localhost,127.0.0.1
-CSRF_TRUSTED_ORIGINS=http://localhost,http://127.0.0.1
-TIME_ZONE=Europe/Moscow
-POSTGRES_DB=foodgram
-POSTGRES_USER=foodgram_user
-POSTGRES_PASSWORD=foodgram_password
-DB_HOST=db
-DB_PORT=5432
-```
-
-Запустите проект:
+## Развёртывание через Docker
 
 ```bash
-cd infra
-sudo docker compose up -d --build
+git clone <repo_url>
+cd foodgram/infra
+docker compose up -d --build
+docker compose exec backend python manage.py migrate
+docker compose exec backend python manage.py collectstatic --noinput
+docker compose exec backend python manage.py load_ingredients --path /app/data/ingredients.json
+docker compose exec backend python manage.py load_tags --path /app/data/tags.json
+```
+
+## Локальный запуск без Docker
+
+```bash
+git clone <repo_url>
+cd foodgram/backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python manage.py migrate
+python manage.py runserver
+```

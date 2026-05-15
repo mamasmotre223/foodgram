@@ -60,11 +60,7 @@ class UserViewSet(DjoserUserViewSet):
             }
         )
 
-    @action(
-        detail=False,
-        methods=("get",),
-        permission_classes=(permissions.IsAuthenticated,),
-    )
+    @action(detail=False, methods=("get",), permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request):
         queryset = self.get_queryset().filter(
             author_subscriptions__user=request.user
@@ -165,29 +161,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(
-        detail=True,
-        methods=("post", "delete"),
-        permission_classes=(permissions.IsAuthenticated,),
-    )
+    @action(detail=True, methods=("post", "delete"), permission_classes=(permissions.IsAuthenticated,))
     def favorite(self, request, pk=None):
         return self._relation_action(request, pk, Favorite)
 
-    @action(
-        detail=True,
-        methods=("post", "delete"),
-        permission_classes=(permissions.IsAuthenticated,),
-        url_path="shopping_cart",
-    )
+    @action(detail=True, methods=("post", "delete"), permission_classes=(permissions.IsAuthenticated,), url_path="shopping_cart")
     def shopping_cart(self, request, pk=None):
         return self._relation_action(request, pk, ShoppingCart)
 
-    @action(
-        detail=False,
-        methods=("get",),
-        permission_classes=(permissions.IsAuthenticated,),
-        url_path="download_shopping_cart",
-    )
+    @action(detail=False, methods=("get",), permission_classes=(permissions.IsAuthenticated,), url_path="download_shopping_cart")
     def download_shopping_cart(self, request):
         return FileResponse(
             build_shopping_list_text(request.user),

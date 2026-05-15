@@ -64,6 +64,14 @@ class Recipe(models.Model):
         validators=[MinValueValidator(MIN_RECIPE_VALUE)],
     )
 
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recipes", verbose_name="Автор")
+    name = models.CharField("Название", max_length=256)
+    image = models.ImageField("Изображение", upload_to="recipes/images/")
+    text = models.TextField("Описание")
+    ingredients = models.ManyToManyField(Ingredient, through="RecipeIngredient", related_name="recipes", verbose_name="Ингредиенты")
+    tags = models.ManyToManyField(Tag, related_name="recipes", verbose_name="Теги")
+    cooking_time = models.PositiveIntegerField("Время приготовления", validators=[MinValueValidator(MIN_RECIPE_VALUE)])
+
     class Meta:
         ordering = ("-created",)
         verbose_name = "Рецепт"
@@ -94,12 +102,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = "Ингредиент в рецепте"
         verbose_name_plural = "Ингредиенты в рецепте"
-        constraints = [
-            models.UniqueConstraint(
-                fields=("recipe", "ingredient"),
-                name="unique_recipe_ingredient",
-            )
-        ]
+        constraints = [models.UniqueConstraint(fields=("recipe", "ingredient"), name="unique_recipe_ingredient")]
 
     def __str__(self):
         return f"{self.ingredient} -> {self.recipe}"

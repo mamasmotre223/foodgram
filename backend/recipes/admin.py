@@ -11,6 +11,7 @@ from recipes.models import (
     Tag,
 )
 
+from recipes.models import Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag
 
 class RelatedRecipeCountAdmin(admin.ModelAdmin):
     @admin.display(description="Рецептов")

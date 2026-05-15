@@ -67,9 +67,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(
-        source="ingredient.measurement_unit"
-    )
+    measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
 
     class Meta:
         model = RecipeIngredient
@@ -78,6 +76,9 @@ class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountWriteSerializer(serializers.Serializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(), source="ingredient"
+    )
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(), source="ingredient"
     )
@@ -94,11 +95,7 @@ class RecipeMinifiedSerializer(serializers.ModelSerializer):
 class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeReadSerializer(
-        source="recipe_ingredients",
-        many=True,
-        read_only=True,
-    )
+    ingredients = IngredientInRecipeReadSerializer(source="recipe_ingredients", many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -125,6 +122,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             and request.user.is_authenticated
             and model.objects.filter(user=request.user, recipe=recipe).exists()
         )
+        return bool(request and request.user.is_authenticated and model.objects.filter(user=request.user, recipe=recipe).exists())
 
     def get_is_favorited(self, recipe):
         return self._is_recipe_related(recipe, Favorite)
@@ -160,9 +158,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ingredients = attrs.get("ingredients") or []
         tags = attrs.get("tags") or []
         if not ingredients:
-            raise serializers.ValidationError(
-                {"ingredients": ["Добавьте ингредиенты."]}
-            )
+            raise serializers.ValidationError({"ingredients": ["Добавьте ингредиенты."]})
         if not tags:
             raise serializers.ValidationError({"tags": ["Добавьте теги."]})
 
@@ -195,6 +191,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe = super().create(
             {**validated_data, "author": self.context["request"].user}
         )
+        recipe = super().create({**validated_data, "author": self.context["request"].user})
         recipe.tags.set(tags)
         self._save_ingredients(recipe, ingredients)
         return recipe

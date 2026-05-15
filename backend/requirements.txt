@@ -12,3 +12,4 @@ PyYAML==6.0.1
 gunicorn==21.2.0
 python-dotenv==1.0.1
 
+drf-extra-fields==3.7.0

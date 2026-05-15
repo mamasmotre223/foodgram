@@ -1,5 +1,7 @@
-﻿from django.contrib import admin
+from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.utils.safestring import mark_safe
+
 from users.models import Subscription, User
 
 
@@ -7,20 +9,41 @@ from users.models import Subscription, User
 class UserAdmin(DjangoUserAdmin):
     list_display = (
         "id",
-        "email",
         "username",
-        "first_name",
-        "last_name",
-        "is_staff",
+        "full_name",
+        "email",
+        "avatar_preview",
+        "recipes_count",
+        "subscriptions_count",
+        "subscribers_count",
     )
     search_fields = ("email", "username", "first_name", "last_name")
-    ordering = ("id",)
     fieldsets = DjangoUserAdmin.fieldsets + (
         ("Профиль", {"fields": ("avatar",)}),
     )
-    add_fieldsets = DjangoUserAdmin.add_fieldsets + (
-        ("Профиль", {"fields": ("first_name", "last_name", "avatar")}),
-    )
+
+    @admin.display(description="ФИО")
+    def full_name(self, user):
+        return f"{user.first_name} {user.last_name}".strip()
+
+    @admin.display(description="Аватар")
+    @mark_safe
+    def avatar_preview(self, user):
+        if not user.avatar:
+            return "-"
+        return f'<img src="{user.avatar.url}" width="50" />'
+
+    @admin.display(description="Рецептов")
+    def recipes_count(self, user):
+        return user.recipes.count()
+
+    @admin.display(description="Подписок")
+    def subscriptions_count(self, user):
+        return user.follower_subscriptions.count()
+
+    @admin.display(description="Подписчиков")
+    def subscribers_count(self, user):
+        return user.author_subscriptions.count()
 
 
 @admin.register(Subscription)

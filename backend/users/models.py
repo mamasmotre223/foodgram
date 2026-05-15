@@ -1,20 +1,23 @@
-﻿from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
 username_validator = RegexValidator(
-    regex=r"^[\w.@+-]+\Z",
+    regex=settings.USERNAME_REGEX,
     message="Введите корректный username.",
 )
 
 
 class User(AbstractUser):
     username = models.CharField(
-        "Имя пользователя",
+        "Логин",
         max_length=150,
         unique=True,
         validators=[username_validator],
     )
+    first_name = models.CharField("Имя", max_length=150)
+    last_name = models.CharField("Фамилия", max_length=150)
     email = models.EmailField("Email", max_length=254, unique=True)
     avatar = models.ImageField(
         "Аватар",
@@ -27,7 +30,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
 
     class Meta:
-        ordering = ("id",)
+        ordering = ("username",)
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
@@ -36,13 +39,13 @@ class Subscription(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="subscriptions",
+        related_name="follower_subscriptions",
         verbose_name="Подписчик",
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="subscribers",
+        related_name="author_subscriptions",
         verbose_name="Автор",
     )
 

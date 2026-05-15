@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
 username_validator = RegexValidator(
     regex=settings.USERNAME_REGEX,
     message="Введите корректный username.",
@@ -16,15 +17,18 @@ class User(AbstractUser):
         unique=True,
         validators=[username_validator],
     )
+=======
+
+username_validator = RegexValidator(regex=settings.USERNAME_REGEX, message="Введите корректный username.")
+
+
+class User(AbstractUser):
+    username = models.CharField("Логин", max_length=150, unique=True, validators=[username_validator])
+>>>>>>> main
     first_name = models.CharField("Имя", max_length=150)
     last_name = models.CharField("Фамилия", max_length=150)
     email = models.EmailField("Email", max_length=254, unique=True)
-    avatar = models.ImageField(
-        "Аватар",
-        upload_to="users/avatars/",
-        blank=True,
-        null=True,
-    )
+    avatar = models.ImageField("Аватар", upload_to="users/avatars/", blank=True, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
@@ -36,6 +40,7 @@ class User(AbstractUser):
 
 
 class Subscription(models.Model):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -48,17 +53,15 @@ class Subscription(models.Model):
         related_name="author_subscriptions",
         verbose_name="Автор",
     )
+=======
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower_subscriptions", verbose_name="Подписчик")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author_subscriptions", verbose_name="Автор")
+>>>>>>> main
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=("user", "author"),
-                name="unique_subscription",
-            ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F("author")),
-                name="prevent_self_subscription",
-            ),
+            models.UniqueConstraint(fields=("user", "author"), name="unique_subscription"),
+            models.CheckConstraint(check=~models.Q(user=models.F("author")), name="prevent_self_subscription"),
         ]
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"

@@ -1,4 +1,5 @@
 from django.db import transaction
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
 from djoser.serializers import (
     UserCreateSerializer as DjoserUserCreateSerializer,
 )
@@ -14,6 +15,13 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
+=======
+from djoser.serializers import UserCreateSerializer as DjoserUserCreateSerializer
+from djoser.serializers import UserSerializer as DjoserUserSerializer
+from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag
+from rest_framework import serializers
+>>>>>>> main
 from users.models import Subscription, User
 
 MIN_AMOUNT = 1
@@ -32,10 +40,14 @@ class UserSerializer(DjoserUserSerializer):
         return bool(
             request
             and request.user.is_authenticated
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
             and Subscription.objects.filter(
                 user=request.user,
                 author=author,
             ).exists()
+=======
+            and Subscription.objects.filter(user=request.user, author=author).exists()
+>>>>>>> main
         )
 
 
@@ -67,9 +79,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(
-        source="ingredient.measurement_unit"
-    )
+    measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
 
     class Meta:
         model = RecipeIngredient
@@ -78,9 +88,13 @@ class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountWriteSerializer(serializers.Serializer):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(), source="ingredient"
     )
+=======
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), source="ingredient")
+>>>>>>> main
     amount = serializers.IntegerField(min_value=MIN_AMOUNT)
 
 
@@ -94,16 +108,13 @@ class RecipeMinifiedSerializer(serializers.ModelSerializer):
 class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeReadSerializer(
-        source="recipe_ingredients",
-        many=True,
-        read_only=True,
-    )
+    ingredients = IngredientInRecipeReadSerializer(source="recipe_ingredients", many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
         fields = (
             "id",
             "tags",
@@ -116,15 +127,22 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
+=======
+        fields = ("id", "tags", "author", "ingredients", "is_favorited", "is_in_shopping_cart", "name", "image", "text", "cooking_time")
+>>>>>>> main
         read_only_fields = fields
 
     def _is_recipe_related(self, recipe, model):
         request = self.context.get("request")
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
         return bool(
             request
             and request.user.is_authenticated
             and model.objects.filter(user=request.user, recipe=recipe).exists()
         )
+=======
+        return bool(request and request.user.is_authenticated and model.objects.filter(user=request.user, recipe=recipe).exists())
+>>>>>>> main
 
     def get_is_favorited(self, recipe):
         return self._is_recipe_related(recipe, Favorite)
@@ -135,15 +153,20 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountWriteSerializer(many=True)
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all(),
     )
+=======
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+>>>>>>> main
     image = Base64ImageField(required=False)
     cooking_time = serializers.IntegerField(min_value=MIN_COOKING_TIME)
 
     class Meta:
         model = Recipe
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
         fields = (
             "id",
             "ingredients",
@@ -153,6 +176,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
+=======
+        fields = ("id", "ingredients", "tags", "image", "name", "text", "cooking_time")
+>>>>>>> main
 
     def validate(self, attrs):
         if self.instance is None and "image" not in attrs:
@@ -160,11 +186,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ingredients = attrs.get("ingredients") or []
         tags = attrs.get("tags") or []
         if not ingredients:
-            raise serializers.ValidationError(
-                {"ingredients": ["Добавьте ингредиенты."]}
-            )
+            raise serializers.ValidationError({"ingredients": ["Добавьте ингредиенты."]})
         if not tags:
             raise serializers.ValidationError({"tags": ["Добавьте теги."]})
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
 
         for field_name, values, key in (
             ("ingredients", ingredients, "ingredient"),
@@ -176,15 +201,26 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {field_name: [f"Найдены дубли: {duplicates}"]}
                 )
+=======
+        for field_name, values, key in (("ingredients", ingredients, "ingredient"), ("tags", tags, "id")):
+            ids = [item[key].id if key == "ingredient" else item.id for item in values]
+            duplicates = sorted({item for item in ids if ids.count(item) > 1})
+            if duplicates:
+                raise serializers.ValidationError({field_name: [f"Найдены дубли: {duplicates}"]})
+>>>>>>> main
         return attrs
 
     def _save_ingredients(self, recipe, ingredients):
         RecipeIngredient.objects.bulk_create(
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
             RecipeIngredient(
                 recipe=recipe,
                 ingredient=item["ingredient"],
                 amount=item["amount"],
             )
+=======
+            RecipeIngredient(recipe=recipe, ingredient=item["ingredient"], amount=item["amount"])
+>>>>>>> main
             for item in ingredients
         )
 
@@ -192,15 +228,20 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop("ingredients")
         tags = validated_data.pop("tags")
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
         recipe = super().create(
             {**validated_data, "author": self.context["request"].user}
         )
+=======
+        recipe = super().create({**validated_data, "author": self.context["request"].user})
+>>>>>>> main
         recipe.tags.set(tags)
         self._save_ingredients(recipe, ingredients)
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
         instance = super().update(
             instance,
             {
@@ -209,6 +250,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 if key not in {"ingredients", "tags"}
             },
         )
+=======
+        instance = super().update(instance, {k: v for k, v in validated_data.items() if k not in {"ingredients", "tags"}})
+>>>>>>> main
         instance.tags.set(validated_data["tags"])
         instance.recipe_ingredients.all().delete()
         self._save_ingredients(instance, validated_data["ingredients"])
@@ -238,3 +282,7 @@ class SubscriptionAuthorSerializer(UserSerializer):
             many=True,
             context=self.context,
         ).data
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+=======
+
+>>>>>>> main

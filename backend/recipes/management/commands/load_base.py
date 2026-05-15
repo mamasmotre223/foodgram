@@ -15,7 +15,21 @@ class LoadFromJsonCommand(BaseCommand):
         try:
             file_path = Path(options["path"])
             payload = json.loads(file_path.read_text(encoding="utf-8"))
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+            created = len(
+                self.model.objects.bulk_create(
+                    (self.model(**item) for item in payload),
+                    ignore_conflicts=True,
+                )
+            )
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Fixture {file_path.name}: created {created} records"
+                )
+            )
+=======
             created = len(self.model.objects.bulk_create((self.model(**item) for item in payload), ignore_conflicts=True))
             self.stdout.write(self.style.SUCCESS(f"Fixture {file_path.name}: created {created} records"))
+>>>>>>> main
         except Exception as error:
             self.stderr.write(self.style.ERROR(f"Load failed: {error}"))

@@ -3,12 +3,28 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+username_validator = RegexValidator(
+    regex=settings.USERNAME_REGEX,
+    message="Введите корректный username.",
+)
+
+
+class User(AbstractUser):
+    username = models.CharField(
+        "Логин",
+        max_length=150,
+        unique=True,
+        validators=[username_validator],
+    )
+=======
 
 username_validator = RegexValidator(regex=settings.USERNAME_REGEX, message="Введите корректный username.")
 
 
 class User(AbstractUser):
     username = models.CharField("Логин", max_length=150, unique=True, validators=[username_validator])
+>>>>>>> main
     first_name = models.CharField("Имя", max_length=150)
     last_name = models.CharField("Фамилия", max_length=150)
     email = models.EmailField("Email", max_length=254, unique=True)
@@ -24,8 +40,23 @@ class User(AbstractUser):
 
 
 class Subscription(models.Model):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="follower_subscriptions",
+        verbose_name="Подписчик",
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="author_subscriptions",
+        verbose_name="Автор",
+    )
+=======
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower_subscriptions", verbose_name="Подписчик")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author_subscriptions", verbose_name="Автор")
+>>>>>>> main
 
     class Meta:
         constraints = [

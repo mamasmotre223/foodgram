@@ -7,9 +7,20 @@ from users.models import Subscription, User
 
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
-    list_display = ("id", "username", "full_name", "email", "avatar_preview", "recipes_count", "subscriptions_count", "subscribers_count")
+    list_display = (
+        "id",
+        "username",
+        "full_name",
+        "email",
+        "avatar_preview",
+        "recipes_count",
+        "subscriptions_count",
+        "subscribers_count",
+    )
     search_fields = ("email", "username", "first_name", "last_name")
-    fieldsets = DjangoUserAdmin.fieldsets + (("Профиль", {"fields": ("avatar",)}),)
+    fieldsets = DjangoUserAdmin.fieldsets + (
+        ("Профиль", {"fields": ("avatar",)}),
+    )
 
     @admin.display(description="ФИО")
     def full_name(self, user):

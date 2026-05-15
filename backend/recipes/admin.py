@@ -1,10 +1,25 @@
 from django.contrib import admin
 from django.db.models import Count
 from django.utils.safestring import mark_safe
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingCart,
+    Tag,
+)
+=======
+>>>>>>> main
 
 from recipes.models import Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag
 
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+=======
 
+>>>>>>> main
 class RelatedRecipeCountAdmin(admin.ModelAdmin):
     @admin.display(description="Рецептов")
     def recipes_count(self, entity):
@@ -31,13 +46,42 @@ class RecipeIngredientInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+    list_display = (
+        "id",
+        "name",
+        "cooking_time",
+        "author",
+        "favorites_count",
+        "ingredients_html",
+        "tags_html",
+        "image_html",
+    )
+    search_fields = (
+        "name",
+        "author__username",
+        "author__email",
+        "tags__name",
+        "ingredients__name",
+    )
+=======
     list_display = ("id", "name", "cooking_time", "author", "favorites_count", "ingredients_html", "tags_html", "image_html")
     search_fields = ("name", "author__username", "author__email", "tags__name", "ingredients__name")
+>>>>>>> main
     list_filter = ("tags", "author")
     inlines = (RecipeIngredientInline,)
 
     def get_queryset(self, request):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(_favorites_count=Count("favorited_by"))
+            .prefetch_related("tags", "ingredients")
+        )
+=======
         return super().get_queryset(request).annotate(_favorites_count=Count("favorited_by")).prefetch_related("tags", "ingredients")
+>>>>>>> main
 
     @admin.display(description="В избранном")
     def favorites_count(self, recipe):
@@ -46,7 +90,14 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description="Продукты")
     @mark_safe
     def ingredients_html(self, recipe):
+<<<<<<< codex/fix-code-style-and-review-comments-a7omez
+        return "<br>".join(
+            f"{item.name} ({item.measurement_unit})"
+            for item in recipe.ingredients.all()
+        )
+=======
         return "<br>".join(f"{item.name} ({item.measurement_unit})" for item in recipe.ingredients.all())
+>>>>>>> main
 
     @admin.display(description="Теги")
     @mark_safe

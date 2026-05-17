@@ -152,16 +152,24 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def _validate_uniqueness(self, field_name, values, id_getter):
         ids = [id_getter(value) for value in values]
         duplicates = sorted(
-            str(item_id) for item_id, count in Counter(ids).items() if count > 1
+            str(item_id)
+            for item_id, count in Counter(ids).items()
+            if count > 1
         )
         if duplicates:
             raise serializers.ValidationError(
-                {field_name: [f"Повторяющиеся значения: {', '.join(duplicates)}"]}
+                {
+                    field_name: [
+                        f"Повторяющиеся значения: {', '.join(duplicates)}"
+                    ]
+                }
             )
 
     def validate(self, attrs):
         if self.instance is None and "image" not in attrs:
-            raise serializers.ValidationError({"image": ["Обязательное поле."]})
+            raise serializers.ValidationError(
+                {"image": ["Обязательное поле."]}
+            )
 
         ingredients = attrs.get("ingredients") or []
         tags = attrs.get("tags") or []
@@ -227,7 +235,9 @@ class SubscriptionAuthorSerializer(UserSerializer):
 
     def get_recipes(self, author):
         recipes = author.recipes.all()
-        recipes_limit = self.context["request"].query_params.get("recipes_limit")
+        recipes_limit = self.context["request"].query_params.get(
+            "recipes_limit"
+        )
         if recipes_limit:
             try:
                 recipes = recipes[: int(recipes_limit)]

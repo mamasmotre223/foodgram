@@ -21,7 +21,9 @@ def build_shopping_list_text(user):
             recipe_ingredient.ingredient.name,
             recipe_ingredient.ingredient.measurement_unit,
         )
-        product_totals[key] = product_totals.get(key, 0) + recipe_ingredient.amount
+        product_totals[key] = (
+            product_totals.get(key, 0) + recipe_ingredient.amount
+        )
 
     return "\n".join(
         [

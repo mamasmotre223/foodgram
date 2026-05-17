@@ -7,5 +7,5 @@ RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r re
 
 COPY . .
 
-CMD ["sh", "-c", "python manage.py wait_for_db && python manage.py migrate && python manage.py collectstatic --noinput && (python manage.py load_ingredients || true) && (python manage.py seed_demo || true) && gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py wait_for_db && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py load_ingredients && python manage.py load_tags && gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"]
 

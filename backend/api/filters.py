@@ -1,5 +1,6 @@
-﻿import django_filters
+import django_filters
 from django.db.models import Q
+
 from recipes.models import Ingredient, Recipe, Tag
 
 
@@ -35,7 +36,7 @@ class RecipeFilter(django_filters.FilterSet):
         user = getattr(self.request, "user", None)
         if not user or not user.is_authenticated:
             return recipes.none() if int(value) else recipes
-        condition = Q(favorited_by__user=user)
+        condition = Q(favorites__user=user)
         return (
             recipes.filter(condition)
             if int(value)
@@ -46,7 +47,7 @@ class RecipeFilter(django_filters.FilterSet):
         user = getattr(self.request, "user", None)
         if not user or not user.is_authenticated:
             return recipes.none() if int(value) else recipes
-        condition = Q(in_shopping_carts__user=user)
+        condition = Q(shoppingcarts__user=user)
         return (
             recipes.filter(condition)
             if int(value)

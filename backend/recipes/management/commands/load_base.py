@@ -6,30 +6,29 @@ from django.core.management.base import BaseCommand
 
 class LoadFromJsonCommand(BaseCommand):
     model = None
-    fixture_name = ""
+    default_path = None
 
     def add_arguments(self, parser):
-        parser.add_argument("--path", required=True)
+        parser.add_argument("--path", default=self.default_path)
 
     def handle(self, *args, **options):
         try:
             file_path = Path(options["path"])
-            payload = json.loads(file_path.read_text(encoding="utf-8"))
-<<<<<<< codex/fix-code-style-and-review-comments-a7omez
-            created = len(
-                self.model.objects.bulk_create(
-                    (self.model(**item) for item in payload),
-                    ignore_conflicts=True,
-                )
+            old_count = self.model.objects.count()
+            self.model.objects.bulk_create(
+                (
+                    self.model(**item)
+                    for item in json.loads(
+                        file_path.read_text(encoding="utf-8")
+                    )
+                ),
+                ignore_conflicts=True,
             )
+            created = self.model.objects.count() - old_count
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"Fixture {file_path.name}: created {created} records"
+                    f"Фикстура {file_path.name}: создано {created} записей"
                 )
             )
-=======
-            created = len(self.model.objects.bulk_create((self.model(**item) for item in payload), ignore_conflicts=True))
-            self.stdout.write(self.style.SUCCESS(f"Fixture {file_path.name}: created {created} records"))
->>>>>>> main
         except Exception as error:
-            self.stderr.write(self.style.ERROR(f"Load failed: {error}"))
+            self.stderr.write(self.style.ERROR(f"Ошибка загрузки: {error}"))

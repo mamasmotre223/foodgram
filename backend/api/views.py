@@ -25,8 +25,6 @@ from users.models import Subscription
 
 
 class UserViewSet(DjoserUserViewSet):
-    queryset = DjoserUserViewSet.queryset
-
     def get_serializer_class(self):
         if self.action in {"subscriptions", "subscribe"}:
             return SubscriptionAuthorSerializer
@@ -40,6 +38,7 @@ class UserViewSet(DjoserUserViewSet):
     )
     def avatar(self, request):
         if request.method == "DELETE":
+            request.user.avatar.delete(save=False)
             request.user.avatar = None
             request.user.save(update_fields=["avatar"])
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -60,14 +59,18 @@ class UserViewSet(DjoserUserViewSet):
             }
         )
 
-    @action(detail=False, methods=("get",), permission_classes=(permissions.IsAuthenticated,))
+    @action(
+        detail=False,
+        methods=("get",),
+        permission_classes=(permissions.IsAuthenticated,),
+    )
     def subscriptions(self, request):
-        queryset = self.get_queryset().filter(
-            author_subscriptions__user=request.user
+        page = self.paginate_queryset(
+            self.get_queryset().filter(author_subscriptions__user=request.user)
         )
-        page = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        return self.get_paginated_response(
+            self.get_serializer(page, many=True).data
+        )
 
     @action(
         detail=True,
@@ -88,6 +91,7 @@ class UserViewSet(DjoserUserViewSet):
             raise serializers.ValidationError(
                 {"errors": ["Нельзя подписаться на самого себя."]}
             )
+
         _, created = Subscription.objects.get_or_create(
             user=request.user,
             author=author,
@@ -117,10 +121,11 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.select_related("author").prefetch_related(
-        "tags",
-        "recipe_ingredients__ingredient",
-    ).distinct()
+    queryset = (
+        Recipe.objects.select_related("author")
+        .prefetch_related("tags", "recipe_ingredients__ingredient")
+        .distinct()
+    )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly,)
@@ -161,15 +166,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=True, methods=("post", "delete"), permission_classes=(permissions.IsAuthenticated,))
+    @action(
+        detail=True,
+        methods=("post", "delete"),
+        permission_classes=(permissions.IsAuthenticated,),
+    )
     def favorite(self, request, pk=None):
         return self._relation_action(request, pk, Favorite)
 
-    @action(detail=True, methods=("post", "delete"), permission_classes=(permissions.IsAuthenticated,), url_path="shopping_cart")
+    @action(
+        detail=True,
+        methods=("post", "delete"),
+        permission_classes=(permissions.IsAuthenticated,),
+        url_path="shopping_cart",
+    )
     def shopping_cart(self, request, pk=None):
         return self._relation_action(request, pk, ShoppingCart)
 
-    @action(detail=False, methods=("get",), permission_classes=(permissions.IsAuthenticated,), url_path="download_shopping_cart")
+    @action(
+        detail=False,
+        methods=("get",),
+        permission_classes=(permissions.IsAuthenticated,),
+        url_path="download_shopping_cart",
+    )
     def download_shopping_cart(self, request):
         return FileResponse(
             build_shopping_list_text(request.user),

@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,7 +9,11 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
-CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin]
+CSRF_TRUSTED_ORIGINS = (
+    os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if os.getenv("CSRF_TRUSTED_ORIGINS")
+    else []
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -23,7 +27,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "djoser",
     "django_filters",
-    "core",
     "users",
     "recipes",
     "api",
@@ -72,14 +75,21 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        )
     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation.NumericPasswordValidator"
+        )
     },
 ]
 
@@ -97,6 +107,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 SITE_ID = 1
 LOGIN_FIELD = "email"
+USERNAME_REGEX = r"^[\w.@+-]+\Z"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -117,7 +128,7 @@ DJOSER = {
     "SERIALIZERS": {
         "user": "api.serializers.UserSerializer",
         "current_user": "api.serializers.UserSerializer",
-        "user_create": "api.serializers.UserCreateSerializer",
+        "user_create": "djoser.serializers.UserCreateSerializer",
         "set_password": "djoser.serializers.SetPasswordSerializer",
         "token_create": "djoser.serializers.TokenCreateSerializer",
     },
@@ -134,7 +145,6 @@ DJOSER = {
 }
 
 EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend",
 )
-
-USERNAME_REGEX = r"^[\w.@+-]+\Z"

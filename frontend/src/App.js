@@ -1,10 +1,9 @@
-﻿import "./fonts/SanFranciscoProDisplay/fonts.css";
+import "./fonts/SanFranciscoProDisplay/fonts.css";
 import "./App.css";
 import { Switch, Route, useHistory, Redirect } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Header, Footer, ProtectedRoute } from "./components";
 import api from "./api";
-import styles from "./styles.module.css";
 
 import {
   About,
@@ -28,7 +27,7 @@ import {
 import { AuthContext, UserContext } from "./contexts";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState({});
   const [orders, setOrders] = useState(0);
   const [authError, setAuthError] = useState({ submitError: "" });
@@ -212,10 +211,6 @@ function App() {
   //     }
   //   });
   // }, [])
-
-  if (loggedIn === null) {
-    return <div className={styles.loading}>Р—Р°РіСЂСѓР·РєР°...</div>;
-  }
 
   return (
     <AuthContext.Provider value={loggedIn}>

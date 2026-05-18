@@ -1,6 +1,6 @@
 # Foodgram
 
-Автор: Никита Лебедев, [GitHub](https://github.com/).
+Автор: Никита Лебедев, [GitHub]([https://github.com/](https://github.com/mamasmotre223)).
 
 Foodgram - сервис публикации рецептов, избранного, подписок и списка покупок.
 

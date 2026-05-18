@@ -4,8 +4,8 @@ from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import permissions, serializers, status, viewsets
-from rest_framework.exceptions import NotFound
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
@@ -21,8 +21,14 @@ from api.serializers import (
     UserSerializer,
 )
 from api.shopping_list import build_shopping_list_text
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from recipes.models import Subscription
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Subscription,
+    Tag,
+)
 
 
 class UserViewSet(DjoserUserViewSet):
@@ -135,7 +141,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in {"create", "partial_update"}:
             return RecipeWriteSerializer
         return RecipeReadSerializer
-
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

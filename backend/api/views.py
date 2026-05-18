@@ -4,6 +4,7 @@ from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import permissions, serializers, status, viewsets
+from rest_framework.exceptions import NotFound
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -21,14 +22,11 @@ from api.serializers import (
 )
 from api.shopping_list import build_shopping_list_text
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from users.models import Subscription
+from recipes.models import Subscription
 
 
 class UserViewSet(DjoserUserViewSet):
-    def get_serializer_class(self):
-        if self.action in {"subscriptions", "subscribe"}:
-            return SubscriptionAuthorSerializer
-        return super().get_serializer_class()
+    serializer_class = UserSerializer
 
     @action(
         detail=False,
@@ -65,11 +63,14 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=(permissions.IsAuthenticated,),
     )
     def subscriptions(self, request):
-        page = self.paginate_queryset(
-            self.get_queryset().filter(author_subscriptions__user=request.user)
-        )
         return self.get_paginated_response(
-            self.get_serializer(page, many=True).data
+            SubscriptionAuthorSerializer(
+                self.paginate_queryset(
+                    self.get_queryset().filter(author_subscriptions__user=request.user)
+                ),
+                many=True,
+                context=self.get_serializer_context(),
+            ).data
         )
 
     @action(
@@ -101,7 +102,7 @@ class UserViewSet(DjoserUserViewSet):
                 {"errors": [f"Вы уже подписаны на {author.username}."]}
             )
         return Response(
-            self.get_serializer(author).data,
+            SubscriptionAuthorSerializer(author, context=self.get_serializer_context()).data,
             status=status.HTTP_201_CREATED,
         )
 
@@ -134,6 +135,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in {"create", "partial_update"}:
             return RecipeWriteSerializer
         return RecipeReadSerializer
+
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
     def _relation_action(self, request, pk, model):
         if request.method == "DELETE":
@@ -194,17 +199,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             build_shopping_list_text(request.user),
             as_attachment=True,
             filename="shopping-list.txt",
-            content_type="text/plain; charset=utf-8",
+            content_type="text/plain",
         )
 
     @action(detail=True, methods=("get",), url_path="get-link")
     def get_link(self, request, pk=None):
         if not Recipe.objects.filter(pk=pk).exists():
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise NotFound(detail=f"Рецепт с id={pk} не найден.")
         return Response(
             {
                 "short-link": request.build_absolute_uri(
-                    reverse("short-link", kwargs={"recipe_id": pk})
+                    reverse("short-link", args=[pk])
                 )
             }
         )

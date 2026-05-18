@@ -8,15 +8,14 @@ from rest_framework import serializers
 from recipes.models import (
     Favorite,
     Ingredient,
+    MIN_COOKING_TIME,
+    MIN_INGREDIENT_AMOUNT,
     Recipe,
     RecipeIngredient,
     ShoppingCart,
     Tag,
 )
-from users.models import Subscription, User
-
-MIN_AMOUNT = 1
-MIN_COOKING_TIME = 1
+from recipes.models import Subscription, User
 
 
 class UserSerializer(DjoserUserSerializer):
@@ -76,7 +75,7 @@ class IngredientAmountWriteSerializer(serializers.Serializer):
         queryset=Ingredient.objects.all(),
         source="ingredient",
     )
-    amount = serializers.IntegerField(min_value=MIN_AMOUNT)
+    amount = serializers.IntegerField(min_value=MIN_INGREDIENT_AMOUNT)
 
 
 class RecipeMinifiedSerializer(serializers.ModelSerializer):
@@ -115,7 +114,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def _is_recipe_related(self, recipe, model):
         request = self.context.get("request")
-        return bool(
+        return (
             request
             and request.user.is_authenticated
             and model.objects.filter(user=request.user, recipe=recipe).exists()
@@ -151,16 +150,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def _validate_uniqueness(self, field_name, values, id_getter):
         ids = [id_getter(value) for value in values]
-        duplicates = sorted(
-            str(item_id)
-            for item_id, count in Counter(ids).items()
-            if count > 1
-        )
+        duplicates = [item_id for item_id, count in Counter(ids).items() if count > 1]
         if duplicates:
             raise serializers.ValidationError(
                 {
                     field_name: [
-                        f"Повторяющиеся значения: {', '.join(duplicates)}"
+                        f"Повторяющиеся значения: {duplicates}"
                     ]
                 }
             )
@@ -202,22 +197,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop("ingredients")
         tags = validated_data.pop("tags")
-        recipe = super().create(
-            {**validated_data, "author": self.context["request"].user}
-        )
+        recipe = super().create(validated_data)
         recipe.tags.set(tags)
         self._save_ingredients(recipe, ingredients)
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop("ingredients")
-        tags = validated_data.pop("tags")
-        instance = super().update(instance, validated_data)
-        instance.tags.set(tags)
+        instance.tags.set(validated_data.pop("tags"))
         instance.recipe_ingredients.all().delete()
-        self._save_ingredients(instance, ingredients)
-        return instance
+        self._save_ingredients(instance, validated_data.pop("ingredients"))
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         return RecipeReadSerializer(instance, context=self.context).data

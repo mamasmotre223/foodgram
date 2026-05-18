@@ -11,7 +11,7 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
-from users.models import Subscription, User
+from recipes.models import Subscription, User
 
 
 class RelatedRecipeCountAdmin(admin.ModelAdmin):

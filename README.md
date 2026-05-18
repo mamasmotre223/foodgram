@@ -32,3 +32,20 @@ docker compose exec backend python manage.py load_tags --path /app/data/tags.jso
 cd foodgram/infra
 docker compose up -d
 ```
+
+
+## Развертывание без Docker
+
+```bash
+git clone <repo_url>
+cd foodgram/backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp ../.env.example .env
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py load_ingredients --path ../data/ingredients.json
+python manage.py load_tags --path ../data/tags.json
+python manage.py runserver
+```

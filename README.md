@@ -1,6 +1,6 @@
 # Foodgram
 
-Автор: Никита Лебедев, [GitHub]([https://github.com/](https://github.com/mamasmotre223)).
+Автор: Никита Лебедев, [GitHub](https://github.com/mamasmotre223).
 
 Foodgram - сервис публикации рецептов, избранного, подписок и списка покупок.
 
@@ -37,7 +37,7 @@ docker compose up -d
 ## Развертывание без Docker
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/mamasmotre223/foodgram.git
 cd foodgram/backend
 python -m venv .venv
 source .venv/bin/activate

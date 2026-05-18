@@ -17,7 +17,7 @@ Python, Django, DRF, Djoser, PostgreSQL, Gunicorn, Nginx, Docker Compose, React.
 ## Развертывание через Docker
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/mamasmotre223/foodgram.git
 cd foodgram/infra
 docker compose up -d --build
 docker compose exec backend python manage.py migrate

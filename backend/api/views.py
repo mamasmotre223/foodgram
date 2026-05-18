@@ -72,7 +72,8 @@ class UserViewSet(DjoserUserViewSet):
         return self.get_paginated_response(
             SubscriptionAuthorSerializer(
                 self.paginate_queryset(
-                    self.get_queryset().filter(author_subscriptions__user=request.user)
+                    self.get_queryset(
+                    ).filter(author_subscriptions__user=request.user)
                 ),
                 many=True,
                 context=self.get_serializer_context(),
@@ -108,7 +109,10 @@ class UserViewSet(DjoserUserViewSet):
                 {"errors": [f"Вы уже подписаны на {author.username}."]}
             )
         return Response(
-            SubscriptionAuthorSerializer(author, context=self.get_serializer_context()).data,
+            SubscriptionAuthorSerializer(
+                author,
+                context=self.get_serializer_context()
+            ).data,
             status=status.HTTP_201_CREATED,
         )
 

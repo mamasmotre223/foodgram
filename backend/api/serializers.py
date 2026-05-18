@@ -151,7 +151,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def _validate_uniqueness(self, field_name, values, id_getter):
         ids = [id_getter(value) for value in values]
-        duplicates = [item_id for item_id, count in Counter(ids).items() if count > 1]
+        duplicates = [
+            item_id for item_id, count in Counter(ids).items() if count > 1
+        ]
         if duplicates:
             raise serializers.ValidationError(
                 {

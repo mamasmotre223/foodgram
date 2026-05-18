@@ -9,9 +9,10 @@ from recipes.models import (
     Recipe,
     RecipeIngredient,
     ShoppingCart,
+    Subscription,
     Tag,
+    User,
 )
-from users.models import Subscription, User
 
 
 class RelatedRecipeCountAdmin(admin.ModelAdmin):

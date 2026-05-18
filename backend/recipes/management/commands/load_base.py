@@ -14,8 +14,7 @@ class LoadFromJsonCommand(BaseCommand):
     def handle(self, *args, **options):
         try:
             file_path = Path(options["path"])
-            old_count = self.model.objects.count()
-            self.model.objects.bulk_create(
+            created = len(self.model.objects.bulk_create(
                 (
                     self.model(**item)
                     for item in json.loads(
@@ -23,12 +22,15 @@ class LoadFromJsonCommand(BaseCommand):
                     )
                 ),
                 ignore_conflicts=True,
-            )
-            created = self.model.objects.count() - old_count
+            ))
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Фикстура {file_path.name}: создано {created} записей"
                 )
             )
         except Exception as error:
-            self.stderr.write(self.style.ERROR(f"Ошибка загрузки: {error}"))
+            self.stderr.write(
+                self.style.ERROR(
+                    f"Ошибка загрузки фикстуры {options['path']}: {error}"
+                )
+            )

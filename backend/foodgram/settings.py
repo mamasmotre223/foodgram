@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "djoser",
     "django_filters",
-    "users",
     "recipes",
     "api",
 ]
@@ -104,7 +103,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "recipes.User"
 SITE_ID = 1
 LOGIN_FIELD = "email"
 USERNAME_REGEX = r"^[\w.@+-]+\Z"

@@ -7,4 +7,4 @@ from recipes.models import Ingredient
 class Command(LoadFromJsonCommand):
     help = "Load ingredients from JSON file"
     model = Ingredient
-    default_path = str(settings.BASE_DIR / "data" / "ingredients.json")
+    default_path = settings.BASE_DIR / "data" / "ingredients.json"

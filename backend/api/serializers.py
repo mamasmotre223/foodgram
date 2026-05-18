@@ -6,10 +6,10 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import (
-    Favorite,
-    Ingredient,
     MIN_COOKING_TIME,
     MIN_INGREDIENT_AMOUNT,
+    Favorite,
+    Ingredient,
     Recipe,
     RecipeIngredient,
     ShoppingCart,

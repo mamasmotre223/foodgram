@@ -28,13 +28,6 @@ docker compose exec backend python manage.py load_ingredients --path /app/data/i
 docker compose exec backend python manage.py load_tags --path /app/data/tags.json
 ```
 
-## Создание пользователя для доступа к админке на сервере
-
-```bash
-cd foodgram/infra
-docker compose exec backend python manage.py shell -c "from django.contrib.auth import get_user_model; User=get_user_model(); user, created = User.objects.get_or_create(username='review', defaults={'email': 'review@admin.ru'}); user.email='review@admin.ru'; user.is_staff=True; user.is_superuser=True; user.set_password('revw1admn'); user.save(); print('created' if created else 'updated')"
-```
-
 ## Запуск через Docker
 
 ```bash

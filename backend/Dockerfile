@@ -7,5 +7,4 @@ RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r re
 
 COPY . .
 
-CMD ["sh", "-c", "python manage.py wait_for_db && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py load_ingredients && python manage.py load_tags && gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"]
-
+CMD ["sh", "-c", "until python -c \"import os, psycopg2; psycopg2.connect(dbname=os.getenv('POSTGRES_DB'), user=os.getenv('POSTGRES_USER'), password=os.getenv('POSTGRES_PASSWORD'), host=os.getenv('DB_HOST', 'db'), port=int(os.getenv('DB_PORT', '5432'))).close()\"; do echo 'Waiting for database...'; sleep 1; done; python manage.py migrate && python manage.py collectstatic --noinput && python manage.py load_ingredients && python manage.py load_tags && gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"]

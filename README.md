@@ -1,6 +1,6 @@
 # Foodgram
 
-[![Main Kittygram workflow](https://github.com/mamasmotre223/foodgram/actions/workflows/foodgram.yml/badge.svg)](https://github.com/mamasmotre223/foodgram/actions/workflows/foodgram.yml)
+[![Main Foodgram workflow](https://github.com/mamasmotre223/foodgram/actions/workflows/foodgram.yml/badge.svg)](https://github.com/mamasmotre223/foodgram/actions/workflows/foodgram.yml)
 
 Автор: Никита Лебедев, [GitHub](https://github.com/mamasmotre223).
 

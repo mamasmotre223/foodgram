@@ -28,6 +28,7 @@ import { AuthContext, UserContext } from "./contexts";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [user, setUser] = useState({});
   const [orders, setOrders] = useState(0);
   const [authError, setAuthError] = useState({ submitError: "" });
@@ -198,9 +199,13 @@ function App() {
         .catch((err) => {
           setLoggedIn(false);
           history.push("/recipes");
+        })
+        .finally(() => {
+          setAuthChecked(true);
         });
     } else {
       setLoggedIn(false);
+      setAuthChecked(true);
     }
   }, []);
 
@@ -230,6 +235,7 @@ function App() {
               component={Cart}
               orders={orders}
               loggedIn={loggedIn}
+              authChecked={authChecked}
               updateOrders={updateOrders}
             />
             <ProtectedRoute
@@ -237,6 +243,7 @@ function App() {
               path="/subscriptions"
               component={Subscriptions}
               loggedIn={loggedIn}
+              authChecked={authChecked}
             />
 
             <ProtectedRoute
@@ -244,6 +251,7 @@ function App() {
               path="/favorites"
               component={Favorites}
               loggedIn={loggedIn}
+              authChecked={authChecked}
               updateOrders={updateOrders}
             />
 
@@ -252,6 +260,7 @@ function App() {
               path="/recipes/create"
               component={RecipeCreate}
               loggedIn={loggedIn}
+              authChecked={authChecked}
             />
 
             <ProtectedRoute
@@ -259,6 +268,7 @@ function App() {
               path="/recipes/:id/edit"
               component={RecipeEdit}
               loggedIn={loggedIn}
+              authChecked={authChecked}
               loadItem={loadSingleItem}
               onItemDelete={getOrders}
             />
@@ -267,6 +277,7 @@ function App() {
               path="/change-password"
               component={ChangePassword}
               loggedIn={loggedIn}
+              authChecked={authChecked}
               submitError={changePasswordError}
               setSubmitError={setChangePasswordError}
               onPasswordChange={changePassword}
@@ -276,6 +287,7 @@ function App() {
               exact
               path="/change-avatar"
               component={UpdateAvatar}
+              authChecked={authChecked}
               loggedIn={loggedIn}
               onAvatarChange={changeAvatar}
             />
@@ -333,7 +345,3 @@ function App() {
 }
 
 export default App;
-
-
-
-

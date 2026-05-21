@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.db.models import Count
+from django.contrib.auth.models import Group
+from django.db.models import Count, Q
+from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 
 from recipes.models import (
@@ -15,10 +17,34 @@ from recipes.models import (
 )
 
 
+admin.site.unregister(Group)
+admin.site.unregister(Site)
+
+
+@admin.action(description="Удалить рецепты без изображений")
+def delete_recipes_without_images(modeladmin, request, queryset):
+    Recipe.objects.filter(Q(image="") | Q(image__isnull=True)).delete()
+
+
 class RelatedRecipeCountAdmin(admin.ModelAdmin):
     @admin.display(description="Рецептов")
     def recipes_count(self, entity):
         return entity.recipes.count()
+
+
+class HasRecipesFilter(admin.SimpleListFilter):
+    title = "Есть в рецептах"
+    parameter_name = "has_recipes"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Да"), ("no", "Нет"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(recipes__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(recipes__isnull=True)
+        return queryset
 
 
 @admin.register(Tag)
@@ -31,7 +57,7 @@ class TagAdmin(RelatedRecipeCountAdmin):
 class IngredientAdmin(RelatedRecipeCountAdmin):
     list_display = ("id", "name", "measurement_unit", "recipes_count")
     search_fields = ("name", "measurement_unit")
-    list_filter = ("measurement_unit",)
+    list_filter = ("measurement_unit", HasRecipesFilter)
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -39,13 +65,30 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 1
 
 
+class CookingTimeCategoryFilter(admin.SimpleListFilter):
+    title = "Время"
+    parameter_name = "cooking_time_group"
+
+    def lookups(self, request, model_admin):
+        return (("fast", "Быстрые"), ("medium", "Средние"), ("long", "Долгие"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "fast":
+            return queryset.filter(cooking_time__lte=30)
+        if self.value() == "medium":
+            return queryset.filter(cooking_time__gt=30, cooking_time__lte=60)
+        if self.value() == "long":
+            return queryset.filter(cooking_time__gt=60)
+        return queryset
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "cooking_time",
-        "author",
+        "cooking_time_display",
+        "author_username",
         "favorites_count",
         "ingredients_html",
         "tags_html",
@@ -58,16 +101,36 @@ class RecipeAdmin(admin.ModelAdmin):
         "tags__name",
         "ingredients__name",
     )
-    list_filter = ("tags", "author", "cooking_time")
+    list_filter = ("tags", "author__username", CookingTimeCategoryFilter)
     inlines = (RecipeIngredientInline,)
+    actions = (delete_recipes_without_images,)
+    readonly_fields = ("image_html",)
+    fields = (
+        "name",
+        "author",
+        "text",
+        "cooking_time",
+        "tags",
+        "image",
+        "image_html",
+    )
 
     def get_queryset(self, request):
         return (
             super()
             .get_queryset(request)
             .annotate(_favorites_count=Count("favorites"))
+            .select_related("author")
             .prefetch_related("tags", "ingredients")
         )
+
+    @admin.display(description="Время\n(мин)", ordering="cooking_time")
+    def cooking_time_display(self, recipe):
+        return recipe.cooking_time
+
+    @admin.display(description="Автор", ordering="author__username")
+    def author_username(self, recipe):
+        return recipe.author.username
 
     @admin.display(description="В избранном")
     def favorites_count(self, recipe):
@@ -90,7 +153,7 @@ class RecipeAdmin(admin.ModelAdmin):
     def image_html(self, recipe):
         if not recipe.image:
             return "-"
-        return mark_safe(f'<img src="{recipe.image.url}" width="80" />')
+        return mark_safe(f'<img src="{recipe.image.url}" width="220" />')
 
 
 class UserRecipeRelationAdmin(admin.ModelAdmin):
@@ -98,8 +161,59 @@ class UserRecipeRelationAdmin(admin.ModelAdmin):
     search_fields = ("user__email", "recipe__name")
 
 
-admin.site.register(Favorite, UserRecipeRelationAdmin)
-admin.site.register(ShoppingCart, UserRecipeRelationAdmin)
+@admin.register(Favorite)
+class FavoriteAdmin(UserRecipeRelationAdmin):
+    pass
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(UserRecipeRelationAdmin):
+    pass
+
+
+class HasRecipesUserFilter(admin.SimpleListFilter):
+    title = "Есть рецепты"
+    parameter_name = "has_recipes"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Да"), ("no", "Нет"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(recipes__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(recipes__isnull=True)
+        return queryset
+
+
+class HasSubscriptionsUserFilter(admin.SimpleListFilter):
+    title = "Есть подписки"
+    parameter_name = "has_subscriptions"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Да"), ("no", "Нет"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(follower_subscriptions__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(follower_subscriptions__isnull=True)
+        return queryset
+
+
+class HasSubscribersUserFilter(admin.SimpleListFilter):
+    title = "Есть подписчики"
+    parameter_name = "has_subscribers"
+
+    def lookups(self, request, model_admin):
+        return (("yes", "Да"), ("no", "Нет"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(author_subscriptions__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(author_subscriptions__isnull=True)
+        return queryset
 
 
 @admin.register(User)
@@ -115,9 +229,12 @@ class UserAdmin(DjangoUserAdmin):
         "subscribers_count",
     )
     search_fields = ("email", "username", "first_name", "last_name")
-    fieldsets = DjangoUserAdmin.fieldsets + (
-        ("Профиль", {"fields": ("avatar",)}),
+    list_filter = (
+        HasRecipesUserFilter,
+        HasSubscriptionsUserFilter,
+        HasSubscribersUserFilter,
     )
+    fieldsets = DjangoUserAdmin.fieldsets + (("Профиль", {"fields": ("avatar",)}),)
 
     @admin.display(description="ФИО")
     def full_name(self, user):
@@ -151,3 +268,9 @@ class SubscriptionAdmin(admin.ModelAdmin):
         "user__username",
         "author__username",
     )
+
+
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    list_display = ("id", "recipe", "ingredient", "amount")
+    search_fields = ("recipe__name", "ingredient__name")

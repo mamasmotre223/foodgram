@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group
-from django.db.models import Count, Q
 from django.contrib.sites.models import Site
+from django.db.models import Count, Q
 from django.utils.safestring import mark_safe
 
 from recipes.models import (
@@ -15,7 +15,6 @@ from recipes.models import (
     Tag,
     User,
 )
-
 
 admin.site.unregister(Group)
 admin.site.unregister(Site)

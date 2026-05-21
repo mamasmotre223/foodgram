@@ -169,13 +169,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 {"image": ["Обязательное поле."]}
             )
 
-        is_partial_update = bool(self.instance and self.partial)
+        is_update = self.instance is not None
 
         ingredients = attrs.get("ingredients")
         tags = attrs.get("tags")
 
         if ingredients is None:
-            if not is_partial_update:
+            if not is_update:
                 raise serializers.ValidationError(
                     {"ingredients": ["Добавьте продукты."]}
                 )
@@ -191,7 +191,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
 
         if tags is None:
-            if not is_partial_update:
+            if not is_update:
                 raise serializers.ValidationError(
                     {"tags": ["Добавьте теги."]}
                 )

@@ -223,9 +223,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        instance.tags.set(validated_data.pop("tags"))
-        instance.recipe_ingredients.all().delete()
-        self._save_ingredients(instance, validated_data.pop("ingredients"))
+        if "tags" in validated_data:
+            instance.tags.set(validated_data.pop("tags"))
+
+        if "ingredients" in validated_data:
+            instance.recipe_ingredients.all().delete()
+            self._save_ingredients(instance, validated_data.pop("ingredients"))
+
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):

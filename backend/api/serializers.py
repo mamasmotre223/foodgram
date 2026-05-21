@@ -169,13 +169,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 {"image": ["Обязательное поле."]}
             )
 
-        is_update = self.instance is not None
+        request = self.context.get("request")
+        is_create = bool(request and request.method == "POST")
 
         ingredients = attrs.get("ingredients")
         tags = attrs.get("tags")
 
         if ingredients is None:
-            if not is_update:
+            if is_create:
                 raise serializers.ValidationError(
                     {"ingredients": ["Добавьте продукты."]}
                 )
@@ -191,7 +192,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
 
         if tags is None:
-            if not is_update:
+            if is_create:
                 raise serializers.ValidationError(
                     {"tags": ["Добавьте теги."]}
                 )

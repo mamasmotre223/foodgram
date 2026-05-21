@@ -116,7 +116,10 @@ class RecipeAdmin(admin.ModelAdmin):
             .prefetch_related("tags", "ingredients")
         )
 
-    @admin.display(description=mark_safe("Время<br>(мин)"), ordering="cooking_time")
+    @admin.display(
+        description=mark_safe("Время<br>(мин)"),
+        ordering="cooking_time",
+    )
     def cooking_time_display(self, recipe):
         return recipe.cooking_time
 
@@ -187,7 +190,9 @@ class HasSubscriptionsUserFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
-            return queryset.filter(follower_subscriptions__isnull=False).distinct()
+            return queryset.filter(
+                follower_subscriptions__isnull=False
+            ).distinct()
         if self.value() == "no":
             return queryset.filter(follower_subscriptions__isnull=True)
         return queryset
@@ -202,7 +207,9 @@ class HasSubscribersUserFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
-            return queryset.filter(author_subscriptions__isnull=False).distinct()
+            return queryset.filter(
+                author_subscriptions__isnull=False
+            ).distinct()
         if self.value() == "no":
             return queryset.filter(author_subscriptions__isnull=True)
         return queryset
@@ -226,7 +233,9 @@ class UserAdmin(DjangoUserAdmin):
         HasSubscriptionsUserFilter,
         HasSubscribersUserFilter,
     )
-    fieldsets = DjangoUserAdmin.fieldsets + (("Профиль", {"fields": (("avatar", "avatar_preview"),)}),)
+    fieldsets = DjangoUserAdmin.fieldsets + (
+        ("Профиль", {"fields": (("avatar", "avatar_preview"),)}),
+    )
     readonly_fields = ("avatar_preview",)
 
     @admin.display(description="ФИО")

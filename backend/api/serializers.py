@@ -169,21 +169,36 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 {"image": ["Обязательное поле."]}
             )
 
-        ingredients = attrs.get("ingredients") or []
-        tags = attrs.get("tags") or []
-        if not ingredients:
+        is_partial_update = bool(self.instance and self.partial)
+
+        ingredients = attrs.get("ingredients")
+        tags = attrs.get("tags")
+
+        if ingredients is None:
+            if not is_partial_update:
+                raise serializers.ValidationError(
+                    {"ingredients": ["Добавьте продукты."]}
+                )
+        elif not ingredients:
             raise serializers.ValidationError(
                 {"ingredients": ["Добавьте продукты."]}
             )
-        if not tags:
-            raise serializers.ValidationError({"tags": ["Добавьте теги."]})
+        else:
+            self._validate_uniqueness(
+                "ingredients",
+                ingredients,
+                lambda item: item["ingredient"].id,
+            )
 
-        self._validate_uniqueness(
-            "ingredients",
-            ingredients,
-            lambda item: item["ingredient"].id,
-        )
-        self._validate_uniqueness("tags", tags, lambda tag: tag.id)
+        if tags is None:
+            if not is_partial_update:
+                raise serializers.ValidationError(
+                    {"tags": ["Добавьте теги."]}
+                )
+        elif not tags:
+            raise serializers.ValidationError({"tags": ["Добавьте теги."]})
+        else:
+            self._validate_uniqueness("tags", tags, lambda tag: tag.id)
         return attrs
 
     def _save_ingredients(self, recipe, ingredients):
@@ -207,9 +222,15 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        instance.tags.set(validated_data.pop("tags"))
-        instance.recipe_ingredients.all().delete()
-        self._save_ingredients(instance, validated_data.pop("ingredients"))
+        tags = validated_data.pop("tags", None)
+        if tags is not None:
+            instance.tags.set(tags)
+
+        ingredients = validated_data.pop("ingredients", None)
+        if ingredients is not None:
+            instance.recipe_ingredients.all().delete()
+            self._save_ingredients(instance, ingredients)
+
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):

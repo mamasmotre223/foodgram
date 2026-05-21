@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.utils.safestring import mark_safe
 
 from recipes.models import (
@@ -18,11 +18,6 @@ from recipes.models import (
 
 admin.site.unregister(Group)
 admin.site.unregister(Site)
-
-
-@admin.action(description="Удалить рецепты без изображений")
-def delete_recipes_without_images(modeladmin, request, queryset):
-    Recipe.objects.filter(Q(image="") | Q(image__isnull=True)).delete()
 
 
 class RelatedRecipeCountAdmin(admin.ModelAdmin):
@@ -91,7 +86,7 @@ class RecipeAdmin(admin.ModelAdmin):
         "favorites_count",
         "ingredients_html",
         "tags_html",
-        "image_html",
+        "image_preview",
     )
     search_fields = (
         "name",
@@ -102,16 +97,14 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_filter = ("tags", "author__username", CookingTimeCategoryFilter)
     inlines = (RecipeIngredientInline,)
-    actions = (delete_recipes_without_images,)
-    readonly_fields = ("image_html",)
+    readonly_fields = ("image_preview",)
     fields = (
         "name",
         "author",
         "text",
         "cooking_time",
         "tags",
-        "image",
-        "image_html",
+        ("image", "image_preview"),
     )
 
     def get_queryset(self, request):
@@ -123,7 +116,7 @@ class RecipeAdmin(admin.ModelAdmin):
             .prefetch_related("tags", "ingredients")
         )
 
-    @admin.display(description="Время\n(мин)", ordering="cooking_time")
+    @admin.display(description=mark_safe("Время<br>(мин)"), ordering="cooking_time")
     def cooking_time_display(self, recipe):
         return recipe.cooking_time
 
@@ -149,7 +142,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return mark_safe("<br>".join(tag.name for tag in recipe.tags.all()))
 
     @admin.display(description="Картинка")
-    def image_html(self, recipe):
+    def image_preview(self, recipe):
         if not recipe.image:
             return "-"
         return mark_safe(f'<img src="{recipe.image.url}" width="220" />')
@@ -233,7 +226,8 @@ class UserAdmin(DjangoUserAdmin):
         HasSubscriptionsUserFilter,
         HasSubscribersUserFilter,
     )
-    fieldsets = DjangoUserAdmin.fieldsets + (("Профиль", {"fields": ("avatar",)}),)
+    fieldsets = DjangoUserAdmin.fieldsets + (("Профиль", {"fields": (("avatar", "avatar_preview"),)}),)
+    readonly_fields = ("avatar_preview",)
 
     @admin.display(description="ФИО")
     def full_name(self, user):
